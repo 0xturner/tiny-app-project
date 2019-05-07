@@ -9,9 +9,6 @@ app.get('/urls', function(req, res) {
     res.render("urls-index", templateVars);
 });
 
-
-
-
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
