@@ -13,7 +13,6 @@ app.get("/urls/:shortURL", (req, res) => {
   let shortenedURL = req.params.shortURL;
   let templateVars = { shortURL: shortenedURL, longURL: urlDatabase[shortenedURL] };
   res.render("urls-show", templateVars);
-  console.log(longURL);
 });
 
 var urlDatabase = {
