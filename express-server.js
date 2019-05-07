@@ -9,11 +9,18 @@ app.get('/urls', function(req, res) {
     res.render("urls-index", templateVars);
 });
 
+app.get("/urls/:shortURL", (req, res) => {
+  let shortenedURL = req.params.shortURL;
+  let templateVars = { shortURL: shortenedURL, longURL: urlDatabase[shortenedURL] };
+  res.render("urls-show", templateVars);
+  console.log(longURL);
+});
+
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
+// console.log(urlDatabase["b2xVn2"]);
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
