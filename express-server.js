@@ -16,6 +16,11 @@ app.get("/urls/new", (req, res) => {
   res.render("urls-new");
 });
 
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   let shortenedURL = req.params.shortURL;
   let templateVars = { shortURL: shortenedURL, longURL: urlDatabase[shortenedURL] };
@@ -42,4 +47,10 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+function generateRandomString() {
+  let result = Math.random().toString(36).substr(2, 6);
+  return result;
+}
+console.log(generateRandomString());
 
