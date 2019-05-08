@@ -18,8 +18,13 @@ app.post('/login', (req, res) => {             // set username cookie
   res.redirect('/urls');
 })
 
+app.post('/logout', (req, res) => {     //user logout
+  res.clearCookie("username", req.body.username);
+  res.redirect('/urls');
+})
+
 app.get('/urls', function(req, res) {
-  console.log("Cookie: " +req.cookies);
+  // console.log("Cookie: " +req.cookies);
     let templateVars = { urls: urlDatabase,
                          username: req.cookies["username"]
                        }
