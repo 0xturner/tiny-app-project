@@ -7,6 +7,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+var morgan = require("morgan");
+
+app.use(morgan('dev'));
+
 app.get('/urls', function(req, res) {
     let templateVars = { urls: urlDatabase}
     res.render("urls-index", templateVars);
@@ -48,6 +52,7 @@ var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
 // console.log(urlDatabase["b2xVn2"]);
 app.get("/", (req, res) => {
   res.send("Hello!");
