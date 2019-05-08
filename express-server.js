@@ -10,8 +10,8 @@ app.set("view engine", "ejs");
 var morgan = require("morgan");
 app.use(morgan('dev'));
 
-var cookieParser = require('cookie-parser');
-app.use(cookieParser());
+// var cookieParser = require('cookie-parser');
+// app.use(cookieParser());
 
 
 
