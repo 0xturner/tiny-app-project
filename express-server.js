@@ -16,16 +16,33 @@ app.get("/urls/new", (req, res) => {
   res.render("urls-new");
 });
 
+
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  // console.log(req.body);  // Log the POST request body to the console
+  let longURL = req.body.longURL;
+
+  let shortURL = generateRandomString();
+
+  addToDb(shortURL, longURL);
+  console.log(urlDatabase);
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL] };
+  res.render("urls-show", templateVars)
+  // res.send(res.render("urls-show", templateVars));         // Respond with 'Ok' (we will replace this)
 });
+
+app.get("/u/:shortURL", (req, res) => {
+  let shortenedURL = req.params.shortURL;
+  const longURL = urlDatabase[shortenedURL];
+  res.redirect(longURL);
+});
+
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortenedURL = req.params.shortURL;
   let templateVars = { shortURL: shortenedURL, longURL: urlDatabase[shortenedURL] };
   res.render("urls-show", templateVars);
 });
+
 
 var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -52,5 +69,9 @@ function generateRandomString() {
   let result = Math.random().toString(36).substr(2, 6);
   return result;
 }
-console.log(generateRandomString());
+// console.log(generateRandomString());
 
+function addToDb (shortURL, longURL) {
+  urlDatabase[shortURL] = longURL;
+}
+// addToDb(generateRandomString(), "www.test.com");
