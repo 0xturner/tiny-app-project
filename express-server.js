@@ -30,9 +30,19 @@ app.post("/urls", (req, res) => {
   addToDb(shortURL, longURL);
   console.log(urlDatabase);
   let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL] };
+  res.redirect('urls/' + shortURL)
   res.render("urls-show", templateVars)
-  // res.send(res.render("urls-show", templateVars));         // Respond with 'Ok' (we will replace this)
 });
+
+app.post('/urls/:shortURL', (req, res) => { // update longURL
+  const shorterURL = req.params.shortURL;
+  console.log("shortURL: " + shorterURL);
+  const newURL = req.body.longURL;
+  console.log("Req Body: " + req.body);
+  addToDb(shorterURL, newURL);
+
+  res.redirect('/urls');
+})
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL

@@ -16,7 +16,14 @@
     <p><%= "Long URL: " + longURL%></p>
     <p><%= "Shortened URL: " + shortURL %></p>
 
-  <a href='#'>Shorten a new URL</a>
+    <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
+      <div class="form-group mb-2">
+        <input class="form-control" type="text" value="<%= longURL %>" name="longURL" style="width: 300px; margin: 1em">
+        <input type="submit" Value="Update"></input>
+      </div>
+    </form>
+
+  <a href='http://localhost:8080/urls/new'>Shorten a new URL</a>
 
 </body>
 </html>
