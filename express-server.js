@@ -10,14 +10,25 @@ app.set("view engine", "ejs");
 var morgan = require("morgan");
 app.use(morgan('dev'));
 
+var cookieParser = require('cookie-parser')
+app.use(cookieParser())
+
+app.post('/login', (req, res) => {             // set username cookie
+  res.cookie("username", req.body.username);
+  res.redirect('/urls');
+})
 
 app.get('/urls', function(req, res) {
-    let templateVars = { urls: urlDatabase}
+  console.log("Cookie: " +req.cookies);
+    let templateVars = { urls: urlDatabase,
+                         username: req.cookies["username"]
+                       }
     res.render("urls-index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls-new");
+  let templateVars = { username: req.cookies["username"] }
+  res.render("urls-new", templateVars);
 });
 
 
@@ -29,15 +40,13 @@ app.post("/urls", (req, res) => {
 
   addToDb(shortURL, longURL);
   console.log(urlDatabase);
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL] };
+  let templateVars = { shortURL: shortURL,
+                       longURL: urlDatabase[shortURL],
+                       username: req.cookies["username"]
+                     };
   res.redirect('urls/' + shortURL)
   res.render("urls-show", templateVars)
 });
-
-app.post('/login', (req, res) => { // set username cookie
-  res.cookie("username", req.body.username);
-  res.redirect('urls/');
-})
 
 app.post('/urls/:shortURL', (req, res) => { // update longURL
   const shorterURL = req.params.shortURL;
@@ -66,7 +75,10 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortenedURL = req.params.shortURL;
-  let templateVars = { shortURL: shortenedURL, longURL: urlDatabase[shortenedURL] };
+  let templateVars = { shortURL: shortenedURL,
+                       longURL: urlDatabase[shortenedURL],
+                       username: req.cookies["username"]
+                     };
   res.render("urls-show", templateVars);
 });
 
