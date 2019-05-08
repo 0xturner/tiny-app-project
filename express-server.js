@@ -10,13 +10,6 @@ app.set("view engine", "ejs");
 var morgan = require("morgan");
 app.use(morgan('dev'));
 
-// var cookieParser = require('cookie-parser');
-// app.use(cookieParser());
-
-
-
-
-
 
 app.get('/urls', function(req, res) {
     let templateVars = { urls: urlDatabase}
@@ -41,11 +34,16 @@ app.post("/urls", (req, res) => {
   res.render("urls-show", templateVars)
 });
 
+app.post('/login', (req, res) => { // set username cookie
+  res.cookie("username", req.body.username);
+  res.redirect('urls/');
+})
+
 app.post('/urls/:shortURL', (req, res) => { // update longURL
   const shorterURL = req.params.shortURL;
-  console.log("shortURL: " + shorterURL);
+  // console.log("shortURL: " + shorterURL);
   const newURL = req.body.longURL;
-  console.log("Req Body: " + req.body);
+  // console.log("Req Body: " + req.body);
   addToDb(shorterURL, newURL);
 
   res.redirect('/urls');
