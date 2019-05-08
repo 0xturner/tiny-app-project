@@ -8,8 +8,15 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 var morgan = require("morgan");
-
 app.use(morgan('dev'));
+
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+
+
+
+
 
 app.get('/urls', function(req, res) {
     let templateVars = { urls: urlDatabase}
