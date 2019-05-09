@@ -17,10 +17,10 @@ var bcrypt = require('bcrypt');
 
 
 
-// app.post('/login', (req, res) => {
-//   res.cookie("userID", req.body.email);
-//   res.redirect('/urls');
-// })
+app.post('/login', (req, res) => {
+  res.cookie("userID", req.body.email);
+  res.redirect('/urls');
+})
 
 app.get("/login", (req, res) => {
   res.render("urls-login");
