@@ -19,11 +19,20 @@ var bcrypt = require('bcrypt');
 
 app.post('/login', (req, res) => {
   let email = req.body.email;
+  // console.log("Email in post request: " + email)
   let password = req.body.password;
-  if (emailLookup(email) && password) {
-    // res.cookie("userID", req.body.id);
-    res.redirect('/urls');
-}
+  console.log("Result from email lookup function" + emailLookup(email) );
+  if (emailLookup(email)) {
+    console.log("EMails matched in post request")
+    if (passwordValidator(email, password)) {
+      // res.cookie("userID", req.body.id);
+      res.redirect('/urls');
+    } else {
+      res.status(403).send("403: Wrong Password");
+    }
+  } else {
+      res.status(403).send("403: Email not found")
+  }
 })
 
 app.get("/login", (req, res) => {
@@ -200,12 +209,40 @@ function emailLookup (givenEmail) {
     // console.log(userId);
     if(givenEmail === email){
       result = true;
+      console.log("GIVEN EMAIL: " + givenEmail)
+      console.log("EMAIL in DB: " + email)
+      console.log("EMAIL Matched")
+      return result;
+    } else if (givenEmail !== email){
+      result = false;
+      console.log("GIVEN EMAIL: " + givenEmail)
+      console.log("EMAIL in DB: " + email)
+      console.log("EMAIL did not MATCH")
+    }
+  }
+  console.log("Result: " + result);
+  return result;
+}
+
+function passwordValidator (givenEmail, givenPassword) {
+  let result;
+  for (let userId in users){
+    let email = users[userId].email;
+    // console.log("GIVEN EMAIL: " + givenEmail)
+    // console.log("EMAIL in DB: " + email)
+    let password = users[userId].password;
+    // console.log("GIVEN PASSWORD: " + givenPassword)
+    // console.log("PASSWORD in DB: " + password)
+    // console.log(userId);
+    if (givenEmail === email && givenPassword === password){
+      result = true;
+      console.log("Password Matched")
     } else{
       result = false;
+      console.log("Password did not Match")
     }
   }
   // console.log(result);
   return result;
-
 }
 // addToDb(generateRandomString(), "www.test.com");
