@@ -17,10 +17,14 @@ var bcrypt = require('bcrypt');
 
 
 
-// app.post('/login', (req, res) => {             // set username cookie
-//   res.cookie("username", req.body.username);
+// app.post('/login', (req, res) => {
+//   res.cookie("userID", req.body.email);
 //   res.redirect('/urls');
 // })
+
+app.get("/login", (req, res) => {
+  res.render("urls-login");
+});
 
 app.post('/logout', (req, res) => {     //user logout
   res.clearCookie("userID", users[req.cookies.userID].id);
@@ -45,12 +49,11 @@ app.post("/register", (req, res) => {
 }
 });
 
+app.get("/register", (req, res) => {
+  res.render("urls-register");
+});
+
 app.get('/urls', function(req, res) {
-  // console.log("Cookie: " +req.cookies);
-    // const userIDE = req.cookies.userID
-    // const email = users[req.cookies.userID].email
-    // console.log("EMAIL: " + users[req.cookies.userID].email)
-    // console.log("USER: " + userIDE);
     let templateVars = { urls: urlDatabase,
                          users: users,
                          user: users[req.cookies.userID].email
@@ -67,9 +70,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls-new", templateVars);
 });
 
-app.get("/register", (req, res) => {
-  res.render("urls-register");
-});
+
 
 
 
