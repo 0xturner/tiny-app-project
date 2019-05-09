@@ -18,8 +18,12 @@ var bcrypt = require('bcrypt');
 
 
 app.post('/login', (req, res) => {
-  res.cookie("userID", req.body.email);
-  res.redirect('/urls');
+  let email = req.body.email;
+  let password = req.body.password;
+  if (emailLookup(email) && password) {
+    // res.cookie("userID", req.body.id);
+    res.redirect('/urls');
+}
 })
 
 app.get("/login", (req, res) => {
@@ -54,18 +58,26 @@ app.get("/register", (req, res) => {
 });
 
 app.get('/urls', function(req, res) {
+    let currentUser = null;
+    if (users[req.cookies.userID]) {
+      currentUser = users[req.cookies.userID].email
+    }
     let templateVars = { urls: urlDatabase,
                          users: users,
-                         user: users[req.cookies.userID].email
+                         user: currentUser
                        }
     res.render("urls-index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   // const email = users[req.cookies.userID].email
+    let currentUser = null;
+    if (users[req.cookies.userID]) {
+      currentUser = users[req.cookies.userID].email
+    }
   let templateVars = {
                       users: users,
-                      user: users[req.cookies.userID].email
+                      user: currentUser
                      }
   res.render("urls-new", templateVars);
 });
@@ -77,6 +89,10 @@ app.get("/urls/new", (req, res) => {
 
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
+    let currentUser = null;
+    if (users[req.cookies.userID]) {
+      currentUser = users[req.cookies.userID].email
+    }
   let longURL = req.body.longURL;
 
   let shortURL = generateRandomString();
@@ -86,7 +102,7 @@ app.post("/urls", (req, res) => {
   let templateVars = { shortURL: shortURL,
                        longURL: urlDatabase[shortURL],
                        users: users,
-                       user: users[req.cookies.userID].email
+                       user: currentUser
                      };
   res.redirect('urls/' + shortURL)
   res.render("urls-show", templateVars)
@@ -118,11 +134,15 @@ app.get("/u/:shortURL", (req, res) => {
 
 
 app.get("/urls/:shortURL", (req, res) => {
+    let currentUser = null;
+    if (users[req.cookies.userID]) {
+      currentUser = users[req.cookies.userID].email
+    }
   let shortenedURL = req.params.shortURL;
   let templateVars = { shortURL: shortenedURL,
                        longURL: urlDatabase[shortenedURL],
                        users: users,
-                       user: users[req.cookies.userID].email
+                       user: currentUser
                      };
   res.render("urls-show", templateVars);
 });

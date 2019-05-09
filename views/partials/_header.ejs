@@ -1,4 +1,6 @@
-<h2>TinyApp</h2>
+<h2>
+<a href='http://localhost:8080/urls/new'>TinyApp</a>
+</h2>
 
 
   <% if (user) { %>
@@ -8,19 +10,16 @@
     <button type="submit">Logout</button>
     </form>
   <% } else { %>
-    <form method="POST" action="/login">
-      <input name="username" type="text" placeholder="Username">
-      <button type="submit">Submit</button>
-    </form>
-<% } %>
-
     <form method="GET" action="/register">
-      <button type="submit">REGISTER</button>
+      <button type="submit">Register</button>
     </form>
 
     <form method="GET" action="/login">
-      <button type="submit">LOGIN</button>
+      <button type="submit">Login</button>
     </form>
+<% } %>
+
+
 
 
 
