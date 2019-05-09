@@ -17,26 +17,53 @@ var bcrypt = require('bcrypt');
 
 
 
-app.post('/login', (req, res) => {             // set username cookie
-  res.cookie("username", req.body.username);
+// app.post('/login', (req, res) => {             // set username cookie
+//   res.cookie("username", req.body.username);
+//   res.redirect('/urls');
+// })
+
+app.post('/logout', (req, res) => {     //user logout
+  res.clearCookie("userID", users[req.cookies.userID].id);
   res.redirect('/urls');
 })
 
-app.post('/logout', (req, res) => {     //user logout
-  res.clearCookie("username", req.body.username);
-  res.redirect('/urls');
-})
+app.post("/register", (req, res) => {
+  let id = generateRandomString();
+  let email = req.body.email;
+  // console.log("email: " + email)
+  let password = req.body.password;
+  if (email === "" || password === "" || emailLookup(email)) {
+    res.status(400).send("400 Error");
+  } else {
+    users[id] = { "id": id,
+                  "email": email,
+                  "password": password
+                };
+    res.cookie("userID", id)
+    console.log(users);
+    res.redirect('/urls');
+}
+});
 
 app.get('/urls', function(req, res) {
   // console.log("Cookie: " +req.cookies);
+    // const userIDE = req.cookies.userID
+    // const email = users[req.cookies.userID].email
+    // console.log("EMAIL: " + users[req.cookies.userID].email)
+    // console.log("USER: " + userIDE);
     let templateVars = { urls: urlDatabase,
-                         username: req.cookies["username"]
+                         users: users,
+                         user: users[req.cookies.userID].email
                        }
     res.render("urls-index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { username: req.cookies["username"] }
+  // const email = users[req.cookies.userID].email
+  let templateVars = {
+                      users: users,
+                      user: users[req.cookies.userID].email
+                     }
   res.render("urls-new", templateVars);
 });
 
@@ -44,23 +71,7 @@ app.get("/register", (req, res) => {
   res.render("urls-register");
 });
 
-app.post("/register", (req, res) => {
-  let email = req.body.email;
-  console.log("email: " + email)
-  let password = req.body.password;
-  if (email === "" || password === "" || emailLookup(email)) {
-    res.send("400 Error");
-  } else {
-    let id = generateRandomString();
-    users[id] = { "id": id,
-                  "email": email,
-                  "password": password
-                };
-    res.cookie("user-id", id)
-    console.log(users);
-    res.redirect('/urls');
-}
-});
+
 
 
 app.post("/urls", (req, res) => {
@@ -73,7 +84,8 @@ app.post("/urls", (req, res) => {
   console.log(urlDatabase);
   let templateVars = { shortURL: shortURL,
                        longURL: urlDatabase[shortURL],
-                       username: req.cookies["username"]
+                       users: users,
+                       user: users[req.cookies.userID].email
                      };
   res.redirect('urls/' + shortURL)
   res.render("urls-show", templateVars)
@@ -108,7 +120,8 @@ app.get("/urls/:shortURL", (req, res) => {
   let shortenedURL = req.params.shortURL;
   let templateVars = { shortURL: shortenedURL,
                        longURL: urlDatabase[shortenedURL],
-                       username: req.cookies["username"]
+                       users: users,
+                       user: users[req.cookies.userID].email
                      };
   res.render("urls-show", templateVars);
 });
@@ -163,14 +176,14 @@ function emailLookup (givenEmail) {
   let result;
   for (let userId in users){
     let email = users[userId].email;
-    console.log(userId);
+    // console.log(userId);
     if(givenEmail === email){
       result = true;
     } else{
       result = false;
     }
   }
-  console.log(result);
+  // console.log(result);
   return result;
 
 }
