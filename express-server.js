@@ -40,13 +40,21 @@ app.get("/urls/new", (req, res) => {
   res.render("urls-new", templateVars);
 });
 
-app.get("/urls/register", (req, res) => {
+app.get("/register", (req, res) => {
   res.render("urls-register");
 });
 
 app.post("/register", (req, res) => {
-  res.cookie("username", req.body.username)
-  res.cookie("password", req.body.password)
+  let id = generateRandomString();
+  console.log("id: " + id);
+  let email = req.body.email;
+  let password = req.body.password;
+  console.log("password: " + password);
+  users[id] = { "id": id,
+                "email": email,
+                "password": password
+              };
+  console.log(users);
   res.redirect('/urls');
 
 });
@@ -58,7 +66,7 @@ app.post("/urls", (req, res) => {
 
   let shortURL = generateRandomString();
 
-  addToDb(shortURL, longURL);
+  addToDb(shortURL, longURL, urlDatabase);
   console.log(urlDatabase);
   let templateVars = { shortURL: shortURL,
                        longURL: urlDatabase[shortURL],
@@ -73,7 +81,7 @@ app.post('/urls/:shortURL', (req, res) => { // update longURL
   // console.log("shortURL: " + shorterURL);
   const newURL = req.body.longURL;
   // console.log("Req Body: " + req.body);
-  addToDb(shorterURL, newURL);
+  users.
 
   res.redirect('/urls');
 })
@@ -144,7 +152,7 @@ function generateRandomString() {
 }
 // console.log(generateRandomString());
 
-function addToDb (shortURL, longURL) {
-  urlDatabase[shortURL] = longURL;
+function addToDb (shortURL, longURL, database) {
+  database[shortURL] = longURL;
 }
 // addToDb(generateRandomString(), "www.test.com");
