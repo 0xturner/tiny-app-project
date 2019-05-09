@@ -45,16 +45,21 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  let id = generateRandomString();
   let email = req.body.email;
+  console.log("email: " + email)
   let password = req.body.password;
-  users[id] = { "id": id,
-                "email": email,
-                "password": password
-              };
-  res.cookie("user-id", id)
-  console.log(users);
-  res.redirect('/urls');
+  if (email === "" || password === "" || emailLookup(email)) {
+    res.send("400 Error");
+  } else {
+    let id = generateRandomString();
+    users[id] = { "id": id,
+                  "email": email,
+                  "password": password
+                };
+    res.cookie("user-id", id)
+    console.log(users);
+    res.redirect('/urls');
+}
 });
 
 
@@ -152,5 +157,21 @@ function generateRandomString() {
 
 function addToDb (shortURL, longURL, database) {
   database[shortURL] = longURL;
+}
+
+function emailLookup (givenEmail) {
+  let result;
+  for (let userId in users){
+    let email = users[userId].email;
+    console.log(userId);
+    if(givenEmail === email){
+      result = true;
+    } else{
+      result = false;
+    }
+  }
+  console.log(result);
+  return result;
+
 }
 // addToDb(generateRandomString(), "www.test.com");
