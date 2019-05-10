@@ -13,12 +13,12 @@
 <% include partials/_header %>
 
 <div class="container">
-    <p><%= "Long URL: " + longURL %></p>
-    <p><%= "Shortened URL: " + shortURL %></p>
+    <p><%= "Long URL: " + urls[shortURL].longURL %></p>
+    <p><%= "Shortened URL: " + url %></p>
 
     <form class="form-inline" action="/urls/<%= shortURL %>" method="POST">
       <div class="form-group mb-2">
-        <input class="form-control" type="text" value="<%= longURL %>" name="longURL" style="width: 300px; margin: 1em">
+        <input class="form-control" type="text" value="<%= urls[shortURL].longURL %>" name="longURL" style="width: 300px; margin: 1em">
         <input type="submit" Value="Update"></input>
       </div>
     </form>

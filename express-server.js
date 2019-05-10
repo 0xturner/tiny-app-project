@@ -34,8 +34,8 @@ const users = {
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "aJ48lW"},
+  "9sm5xK": { longURL: "http://www.tsn.ca", userID: "aJ48lW"}
 };
 
 
@@ -123,28 +123,34 @@ app.get("/urls/new", (req, res) => {
 });
 
 
-
-
-
-
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
     let currentUser = null;
     if (users[req.cookies.userID]) {
       currentUser = users[req.cookies.userID].email
     }
-  let longURL = req.body.longURL;
+  let fullURL = req.body.longURL;
 
   let shortURL = generateRandomString();
 
-  addToDb(shortURL, longURL, urlDatabase);
+  let key = {longURL: fullURL,
+             userID: currentUser
+            }
+  urlDatabase[shortURL] = key
+  // addToDb(shortURL, longURL, urlDatabase);
+  console.log("shortURL: : " + shortURL)
+  console.log("fullURL: : " + fullURL)
+  console.log("Key: " + key.longURL)
+  // console.log("Second Key: " + urlDatabase.abcdef.longURL)
+  console.log("urlDatabase: : " + urlDatabase)
+  // urlDatabase[shortURL].longURL = fullURL;
   console.log(urlDatabase);
   let templateVars = { shortURL: shortURL,
-                       longURL: urlDatabase[shortURL],
+                       // longURL: urlDatabase[shortURL].longURL,
                        users: users,
                        user: currentUser
                      };
-  res.redirect('/urls' + shortURL)
+  res.redirect('/urls/' + shortURL)
   res.render("urls-show", templateVars)
 });
 
@@ -177,10 +183,14 @@ app.get("/urls/:shortURL", (req, res) => {
     let currentUser = null;
     if (users[req.cookies.userID]) {
       currentUser = users[req.cookies.userID].email
+      // console.log("Corresponding long URL: " + urlDatabase[req.params.shortURL].longURL)
     }
+
   let shortenedURL = req.params.shortURL;
   let templateVars = { shortURL: shortenedURL,
-                       longURL: urlDatabase[shortenedURL],
+                       urls: urlDatabase,
+                       // longURL: urlDatabase[shortenedURL].longURL,
+                       url: req.params.shortURL,
                        users: users,
                        user: currentUser
                      };
@@ -223,15 +233,15 @@ function emailLookup (givenEmail) {
     // console.log(userId);
     if(givenEmail === email){
       result = true;
-      console.log("GIVEN EMAIL: " + givenEmail)
-      console.log("EMAIL in DB: " + email)
-      console.log("EMAIL Matched")
+      // console.log("GIVEN EMAIL: " + givenEmail)
+      // console.log("EMAIL in DB: " + email)
+      // console.log("EMAIL Matched")
       return result;
     } else if (givenEmail !== email){
       result = false;
-      console.log("GIVEN EMAIL: " + givenEmail)
-      console.log("EMAIL in DB: " + email)
-      console.log("EMAIL did not MATCH")
+      // console.log("GIVEN EMAIL: " + givenEmail)
+      // console.log("EMAIL in DB: " + email)
+      // console.log("EMAIL did not MATCH")
     }
   }
   console.log("Result: " + result);
