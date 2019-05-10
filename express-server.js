@@ -95,6 +95,7 @@ app.get("/register", (req, res) => {
 
 app.get('/urls', function(req, res) {
     let currentUser = null;
+
     if (users[req.cookies.userID]) {
       currentUser = users[req.cookies.userID].email
     }
@@ -156,10 +157,12 @@ app.post("/urls", (req, res) => {
 
 app.post('/urls/:shortURL', (req, res) => { // update longURL
   const shorterURL = req.params.shortURL;
-  // console.log("shortURL: " + shorterURL);
+  console.log("shortURL: " + shorterURL);
   const newURL = req.body.longURL;
-  // console.log("Req Body: " + req.body);
-  users.
+  console.log("Req Body: " + req.body);
+  console.log("NewURL: " + newURL)
+  urlDatabase[shorterURL].longURL = newURL
+
 
   res.redirect('/urls');
 })
