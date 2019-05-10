@@ -16,6 +16,32 @@ app.use(cookieParser())
 var bcrypt = require('bcrypt');
 
 
+/////////////////////////////////////////////////////
+
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "funk"
+  }
+}
+
+
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
+};
+
+
+///////////////////////////////////////////////////
+
+
 
 app.post('/login', (req, res) => {
   let email = req.body.email;
@@ -25,7 +51,8 @@ app.post('/login', (req, res) => {
   if (emailLookup(email)) {
     console.log("EMails matched in post request")
     if (passwordValidator(email, password)) {
-      // res.cookie("userID", req.body.id);
+      res.cookie("userID", passwordValidator(email, password));
+      console.log(passwordValidator(email, password))
       res.redirect('/urls');
     } else {
       res.status(403).send("403: Wrong Password");
@@ -80,6 +107,7 @@ app.get('/urls', function(req, res) {
 
 app.get("/urls/new", (req, res) => {
   // const email = users[req.cookies.userID].email
+  if(users[req.cookies.userID]){
     let currentUser = null;
     if (users[req.cookies.userID]) {
       currentUser = users[req.cookies.userID].email
@@ -89,6 +117,9 @@ app.get("/urls/new", (req, res) => {
                       user: currentUser
                      }
   res.render("urls-new", templateVars);
+} else {
+  res.redirect('/urls')
+}
 });
 
 
@@ -113,7 +144,7 @@ app.post("/urls", (req, res) => {
                        users: users,
                        user: currentUser
                      };
-  res.redirect('urls/' + shortURL)
+  res.redirect('/urls' + shortURL)
   res.render("urls-show", templateVars)
 });
 
@@ -156,24 +187,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls-show", templateVars);
 });
 
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-}
 
-
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
 
 // console.log(urlDatabase["b2xVn2"]);
 app.get("/", (req, res) => {
@@ -231,12 +245,15 @@ function passwordValidator (givenEmail, givenPassword) {
     // console.log("GIVEN EMAIL: " + givenEmail)
     // console.log("EMAIL in DB: " + email)
     let password = users[userId].password;
+    let UserId = userId
     // console.log("GIVEN PASSWORD: " + givenPassword)
     // console.log("PASSWORD in DB: " + password)
     // console.log(userId);
     if (givenEmail === email && givenPassword === password){
       result = true;
       console.log("Password Matched")
+
+      return UserId;
     } else{
       result = false;
       console.log("Password did not Match")
