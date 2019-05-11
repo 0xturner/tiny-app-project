@@ -20,8 +20,8 @@ var bcrypt = require('bcrypt');
 
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
+  "aJ48lW": {
+    id: "aJ48lW",
     email: "user@example.com",
     password: "purple"
   },
@@ -93,18 +93,7 @@ app.get("/register", (req, res) => {
   res.render("urls-register");
 });
 
-app.get('/urls', function(req, res) {
-    let currentUser = null;
 
-    if (users[req.cookies.userID]) {
-      currentUser = users[req.cookies.userID].email
-    }
-    let templateVars = { urls: urlDatabase,
-                         users: users,
-                         user: currentUser
-                       }
-    res.render("urls-index", templateVars);
-});
 
 app.get("/urls/new", (req, res) => {
   // const email = users[req.cookies.userID].email
@@ -123,12 +112,32 @@ app.get("/urls/new", (req, res) => {
 }
 });
 
+app.get('/urls', function(req, res) {
+    let currentUser = null;
+    let currentUserID = null;
+    if (users[req.cookies.userID]) {
+      currentUser = users[req.cookies.userID].email
+      currentUserID = req.cookies["userID"]; //not working
+    }
+    console.log("CUUUUURRRRREEEENNNNNTTTTTT USSSSSSEEEEERRR IDDDDD: " + currentUserID);
+    // validurls = urlsForUser(currentUserID);
+    // console.log("Filterered IDs: " + validurls.b2xVn2.longURL);
+
+    let templateVars = {
+                         urls: urlDatabase,
+                         // urls: validurls,
+                         users: users,
+                         user: currentUser
+                       }
+    res.render("urls-index", templateVars);
+});
+
 
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
     let currentUser = null;
     if (users[req.cookies.userID]) {
-      currentUser = users[req.cookies.userID].email
+      currentUser = users[req.cookies.userID].id
     }
   let fullURL = req.body.longURL;
 
@@ -169,9 +178,20 @@ app.post('/urls/:shortURL', (req, res) => { // update longURL
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL
-  delete urlDatabase[shortURL] // delete from the DB
+  if (users[req.cookies.userID]) {
+    const currentUserID = users[req.cookies.userID].id
 
-  res.redirect('/urls')
+    if (belongsTo(currentUserID, shortURL)) {
+      delete urlDatabase[shortURL]; // delete from the DB
+      res.redirect('/urls');
+    } else {
+      console.log("Unable to delete");
+      res.send("Unable to delete");
+    }
+  } else {
+    console.log("Unable to delete");
+    res.send("Unable to delete");
+  }
 })
 
 
@@ -255,24 +275,63 @@ function passwordValidator (givenEmail, givenPassword) {
   let result;
   for (let userId in users){
     let email = users[userId].email;
-    // console.log("GIVEN EMAIL: " + givenEmail)
-    // console.log("EMAIL in DB: " + email)
     let password = users[userId].password;
     let UserId = userId
-    // console.log("GIVEN PASSWORD: " + givenPassword)
-    // console.log("PASSWORD in DB: " + password)
-    // console.log(userId);
+
     if (givenEmail === email && givenPassword === password){
       result = true;
-      console.log("Password Matched")
+      // console.log("Password Matched")
 
       return UserId;
     } else{
       result = false;
-      console.log("Password did not Match")
+      // console.log("Password did not Match")
     }
   }
   // console.log(result);
   return result;
+}
+
+function filterURLS(user) {
+  const validobjIDs = []
+  for (let objID in urlDatabase) {
+    let url = urlDatabase[objID].longURL;
+    let userID = urlDatabase[objID].userID;
+    console.log("UserID in filter function: " + userID)
+    console.log("Current User in filter function: " + user)
+    if (user === userID) {
+      console.log("USERID MATCH");
+      validobjIDs.push(objID);
+    }
+    console.log("validobjIDs: " + validobjIDs);
+    // return validobjIDs;
+  }
+  return validobjIDs;
+}
+
+const urlsForUser = (id) => {
+ let urlsUser = {};
+ for (let key in urlDatabase) {
+   if (urlDatabase[key].userID === id) {
+     urlsUser[key] = urlDatabase[key];
+     console.log("urls USER: " + urlsUser[key])
+   }
+   // console.log("urls USERRRRRRRR: " + urlsUser.b2xVn2.longURL);
+   // console.log("urlDBBBBBB: " + urlDatabase);
+ }
+ // console.log("urls USER: " + urlsUser)
+ return urlsUser;
+}
+
+function belongsTo(currentUser, shortURL) {
+  console.log("User ID in belongsTo: " + urlDatabase[shortURL].userID)
+  console.log("currentUser in belongsTo: " + currentUser)
+  if (urlDatabase[shortURL].userID === currentUser) {
+    console.log("ids match, can delete")
+    return true;
+  } else {
+    console.log("ids don't match, can't delete");
+    return false;
+  }
 }
 // addToDb(generateRandomString(), "www.test.com");
