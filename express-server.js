@@ -165,16 +165,29 @@ app.post("/urls", (req, res) => {
 });
 
 app.post('/urls/:shortURL', (req, res) => { // update longURL
-  const shorterURL = req.params.shortURL;
-  console.log("shortURL: " + shorterURL);
-  const newURL = req.body.longURL;
-  console.log("Req Body: " + req.body);
-  console.log("NewURL: " + newURL)
-  urlDatabase[shorterURL].longURL = newURL
+  const currentUserID = null;
+  if (users[req.cookies.userID]) {
+    const currentUserID = users[req.cookies.userID].id
 
 
-  res.redirect('/urls');
+    const shorterURL = req.params.shortURL;
+
+  // console.log("shortURL: " + shorterURL);
+    const newURL = req.body.longURL;
+  // console.log("Req Body: " + req.body);
+  // console.log("NewURL: " + newURL)
+
+    if (belongsTo(currentUserID, shorterURL)) {
+      urlDatabase[shorterURL].longURL = newURL
+      res.redirect('/urls');
+    } else {
+      res.send("Can't edit url that does not belong to user");
+    }
+  } else {
+      res.send("Can't edit url that does not belong to user");
+  }
 })
+
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL
