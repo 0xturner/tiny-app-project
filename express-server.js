@@ -10,8 +10,11 @@ app.set("view engine", "ejs");
 const morgan = require("morgan");
 app.use(morgan('dev'));
 
-const cookieParser = require('cookie-parser')
-app.use(cookieParser())
+
+const cookieSession = require('cookie-session')
+app.use(cookieSession({
+  keys: ['secretkey'],
+}))
 
 const bcrypt = require('bcrypt');
 
@@ -52,8 +55,7 @@ app.post('/login', (req, res) => {
   if (emailLookup(email)) {
     console.log("EMails matched in post request")
     if (passwordValidator(email, password)) {
-      res.cookie("userID", passwordValidator(email, password));
-      console.log(passwordValidator(email, password))
+      req.session.userID = passwordValidator(email, password);
       res.redirect('/urls');
     } else {
       res.status(403).send("403: Wrong Password");
@@ -68,10 +70,12 @@ app.get("/login", (req, res) => {
 });
 
 app.post('/logout', (req, res) => {     //user logout
-  if(users[req.cookies.userID]){
-    res.clearCookie("userID", users[req.cookies.userID].id);
+  if(users[req.session.userID]){
+    req.session = null;
+    console.log("Not Logged in")
     res.redirect('/urls');
   } else {
+    console.log("Not Logged in")
     res.redirect('/urls');
   }
 })
@@ -89,7 +93,8 @@ app.post("/register", (req, res) => {
                   "email": email,
                   "password": hashedPassword
                 };
-    res.cookie("userID", id)
+    // res.cookie("userID", id)
+    req.session.userID = id;
     console.log(users);
     res.redirect('/urls');
 }
@@ -102,11 +107,11 @@ app.get("/register", (req, res) => {
 
 
 app.get("/urls/new", (req, res) => {
-  // const email = users[req.cookies.userID].email
-  if(users[req.cookies.userID]){
+  // const email = users[req.session.userID].email
+  if(users[req.session.userID]){
     let currentUser = null;
-    if (users[req.cookies.userID]) {
-      currentUser = users[req.cookies.userID].email
+    if (users[req.session.userID]) {
+      currentUser = users[req.session.userID].email
     }
   let templateVars = {
                       users: users,
@@ -121,9 +126,9 @@ app.get("/urls/new", (req, res) => {
 app.get('/urls', function(req, res) {
     let currentUser = null;
     let currentUserID = null;
-    if (users[req.cookies.userID]) {
-      currentUser = users[req.cookies.userID].email
-      currentUserID = users[req.cookies.userID].id; //not working
+    if (users[req.session.userID]) {
+      currentUser = users[req.session.userID].email
+      currentUserID = users[req.session.userID].id; //not working
     }
     validurls = urlsForUser(currentUserID);
     // console.log("Filterered IDs: " + validurls.b2xVn2.longURL);
@@ -141,8 +146,8 @@ app.get('/urls', function(req, res) {
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
     let currentUser = null;
-    if (users[req.cookies.userID]) {
-      currentUser = users[req.cookies.userID].id
+    if (users[req.session.userID]) {
+      currentUser = users[req.session.userID].id
     }
   let fullURL = req.body.longURL;
 
@@ -171,8 +176,8 @@ app.post("/urls", (req, res) => {
 
 app.post('/urls/:shortURL', (req, res) => { // update longURL
   const currentUserID = null;
-  if (users[req.cookies.userID]) {
-    const currentUserID = users[req.cookies.userID].id
+  if (users[req.session.userID]) {
+    const currentUserID = users[req.session.userID].id
 
 
     const shorterURL = req.params.shortURL;
@@ -196,8 +201,8 @@ app.post('/urls/:shortURL', (req, res) => { // update longURL
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL
-  if (users[req.cookies.userID]) {
-    const currentUserID = users[req.cookies.userID].id
+  if (users[req.session.userID]) {
+    const currentUserID = users[req.session.userID].id
 
     if (belongsTo(currentUserID, shortURL)) {
       delete urlDatabase[shortURL]; // delete from the DB
@@ -222,8 +227,8 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
     let currentUser = null;
-    if (users[req.cookies.userID]) {
-      currentUser = users[req.cookies.userID].email
+    if (users[req.session.userID]) {
+      currentUser = users[req.session.userID].email
       // console.log("Corresponding long URL: " + urlDatabase[req.params.shortURL].longURL)
     }
 
@@ -310,13 +315,7 @@ function passwordValidator (givenEmail, givenPassword) {
   return result;
 }
 
-function hashedPwdValidator (givenPassword, hashedPassword) {
-  if (bcrypt.compareSync(givenPassword, hashedPassword)) {
-    return true;
-  } else {
-    return false;
-  }
-}
+
 
 
 function filterURLS(user) {
