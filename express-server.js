@@ -117,15 +117,15 @@ app.get('/urls', function(req, res) {
     let currentUserID = null;
     if (users[req.cookies.userID]) {
       currentUser = users[req.cookies.userID].email
-      currentUserID = req.cookies["userID"]; //not working
+      currentUserID = users[req.cookies.userID].id; //not working
     }
     console.log("CUUUUURRRRREEEENNNNNTTTTTT USSSSSSEEEEERRR IDDDDD: " + currentUserID);
-    // validurls = urlsForUser(currentUserID);
+    validurls = urlsForUser(currentUserID);
     // console.log("Filterered IDs: " + validurls.b2xVn2.longURL);
 
     let templateVars = {
-                         urls: urlDatabase,
-                         // urls: validurls,
+                         // urls: urlDatabase,
+                         urls: validurls,
                          users: users,
                          user: currentUser
                        }
@@ -210,7 +210,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   let shortenedURL = req.params.shortURL;
-  const longURL = urlDatabase[shortenedURL];
+  const longURL = urlDatabase[shortenedURL].longURL;
   res.redirect(longURL);
 });
 
