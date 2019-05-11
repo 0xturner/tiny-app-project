@@ -1,19 +1,19 @@
-var express = require("express");
-var app = express();
-var PORT = 8080; // default port 8080
+const express = require("express");
+const app = express();
+const PORT = 8080; // default port 8080
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
-var morgan = require("morgan");
+const morgan = require("morgan");
 app.use(morgan('dev'));
 
-var cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
-var bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 
 
 /////////////////////////////////////////////////////
@@ -67,21 +67,26 @@ app.get("/login", (req, res) => {
 });
 
 app.post('/logout', (req, res) => {     //user logout
-  res.clearCookie("userID", users[req.cookies.userID].id);
-  res.redirect('/urls');
+  if(users[req.cookies.userID]){
+    res.clearCookie("userID", users[req.cookies.userID].id);
+    res.redirect('/urls');
+  } else {
+    res.redirect('/urls');
+  }
 })
 
 app.post("/register", (req, res) => {
-  let id = generateRandomString();
-  let email = req.body.email;
+  const id = generateRandomString();
+  const email = req.body.email;
   // console.log("email: " + email)
-  let password = req.body.password;
+  const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
   if (email === "" || password === "" || emailLookup(email)) {
     res.status(400).send("400 Error");
   } else {
     users[id] = { "id": id,
                   "email": email,
-                  "password": password
+                  "password": hashedPassword
                 };
     res.cookie("userID", id)
     console.log(users);
