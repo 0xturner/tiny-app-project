@@ -23,12 +23,12 @@ const users = {
   "aJ48lW": {
     id: "aJ48lW",
     email: "user@example.com",
-    password: "purple"
+    password: bcrypt.hashSync("purple", 10)
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "funk"
+    password: bcrypt.hashSync("funk", 10)
   }
 }
 
@@ -47,6 +47,7 @@ app.post('/login', (req, res) => {
   let email = req.body.email;
   // console.log("Email in post request: " + email)
   let password = req.body.password;
+  let hashedPassword = bcrypt.hashSync(password, 10);
   console.log("Result from email lookup function" + emailLookup(email) );
   if (emailLookup(email)) {
     console.log("EMails matched in post request")
@@ -124,7 +125,6 @@ app.get('/urls', function(req, res) {
       currentUser = users[req.cookies.userID].email
       currentUserID = users[req.cookies.userID].id; //not working
     }
-    console.log("CUUUUURRRRREEEENNNNNTTTTTT USSSSSSEEEEERRR IDDDDD: " + currentUserID);
     validurls = urlsForUser(currentUserID);
     // console.log("Filterered IDs: " + validurls.b2xVn2.longURL);
 
@@ -293,10 +293,10 @@ function passwordValidator (givenEmail, givenPassword) {
   let result;
   for (let userId in users){
     let email = users[userId].email;
-    let password = users[userId].password;
+    let hashedPassword = users[userId].password;
     let UserId = userId
 
-    if (givenEmail === email && givenPassword === password){
+    if (givenEmail === email && bcrypt.compareSync(givenPassword, hashedPassword)){
       result = true;
       // console.log("Password Matched")
 
@@ -309,6 +309,15 @@ function passwordValidator (givenEmail, givenPassword) {
   // console.log(result);
   return result;
 }
+
+function hashedPwdValidator (givenPassword, hashedPassword) {
+  if (bcrypt.compareSync(givenPassword, hashedPassword)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 
 function filterURLS(user) {
   const validobjIDs = []
