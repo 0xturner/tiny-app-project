@@ -4,6 +4,9 @@ A simple URL shortening app that allow users to shorten long URLs much like Tiny
 
 ## Screenshots:
 
+!["Screenshot of URL Show page"](https://github.com/turnerschumann/tiny-app-project/blob/master/docs/url-show-page.png)
+!["Screenshot of URLs page"](https://github.com/turnerschumann/tiny-app-project/blob/master/docs/urls-page.png)
+
 ## Dependencies
 
 - Node.js
